@@ -1,49 +1,12 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+-- Impostazione della variabile di rinculo massimo
+local maxRecoil = 0.2 -- Modifica questo valore per aumentare o diminuire il rinculo massimo
 
--- imposto il rinculo dell'arma a zero
-local function NoRecoil()
-    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then
-            local tool = require(v)
-            tool.Recoil = 0
-        end
+-- Funzione per la riduzione del rinculo delle armi
+local function onRecoil(input, gameProcessedEvent)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then -- Verifica se il mouse è in movimento
+        input.UserInputDelta = input.UserInputDelta / (1 + maxRecoil) -- Riduce il rinculo in base alla variabile di rinculo massimo
     end
 end
 
--- imposto la velocità di fuoco dell'arma al 10% in più
-local function FasterShooting()
-    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then
-            local tool = require(v)
-            tool.AutoFire = true
-            tool.FireRate = tool.FireRate * 0.9
-        end
-    end
-end
-
--- notifica quando lo script funziona
-local function Notify()
-    local NotificationBindable = Instance.new("BindableEvent")
-    NotificationBindable.Event:Connect(function()
-        print("Script attivato!")
-    end)
-    NotificationBindable:Fire()
-end
-
-NoRecoil()
-FasterShooting()
-Notify()
-
--- aspetto che il giocatore spari per ripristinare le impostazioni di default
-Mouse.Button1Down:Connect(function()
-    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then
-            local tool = require(v)
-            tool.Recoil = 1
-            tool.AutoFire = false
-            tool.FireRate = tool.FireRate / 0.9
-        end
-    end
-end)
+-- Aggiunta della funzione alla connessione di input
+game:GetService("UserInputService").InputChanged:Connect(onRecoil)
