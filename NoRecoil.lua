@@ -1,19 +1,49 @@
-function removeRecoil()
-    local currentWeapon = game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-    if currentWeapon then
-        local fire = currentWeapon:FindFirstChild("Fire")
-        if fire then
-            fire.Recoil = 0
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+-- imposto il rinculo dell'arma a zero
+local function NoRecoil()
+    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") then
+            local tool = require(v)
+            tool.Recoil = 0
         end
     end
 end
 
-game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
-    character.ChildAdded:Connect(function(child)
-        if child:IsA("Tool") then
-            removeRecoil()
+-- imposto la velocità di fuoco dell'arma al 10% in più
+local function FasterShooting()
+    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") then
+            local tool = require(v)
+            tool.AutoFire = true
+            tool.FireRate = tool.FireRate * 0.9
         end
-    end)
-end)
+    end
+end
 
-removeRecoil()
+-- notifica quando lo script funziona
+local function Notify()
+    local NotificationBindable = Instance.new("BindableEvent")
+    NotificationBindable.Event:Connect(function()
+        print("Script attivato!")
+    end)
+    NotificationBindable:Fire()
+end
+
+NoRecoil()
+FasterShooting()
+Notify()
+
+-- aspetto che il giocatore spari per ripristinare le impostazioni di default
+Mouse.Button1Down:Connect(function()
+    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") then
+            local tool = require(v)
+            tool.Recoil = 1
+            tool.AutoFire = false
+            tool.FireRate = tool.FireRate / 0.9
+        end
+    end
+end)
